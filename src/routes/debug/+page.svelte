@@ -18,6 +18,10 @@
         let {["$typeName"]: _, ...obj} = component;
         return JSON.stringify(obj)
     }
+
+    function sortByTypeName(items: Iterable<Message>) {
+        return Array.from(items).toSorted((a, b) => a.$typeName.localeCompare(b.$typeName))
+    }
 </script>
 
 <a href="{base}/" class="underline">home</a>
@@ -42,7 +46,7 @@
     </thead>
     <tbody>
     {#each store.entities.values() as entity (entity.id)}
-        {#each entity.components.values() as component, componentIndex (component.$typeName)}
+        {#each sortByTypeName(entity.components.values()) as component, componentIndex (component.$typeName)}
             <tr>
                 {#if componentIndex === 0}
                     <td rowspan="{entity.components.size}">{entity.id}</td>
