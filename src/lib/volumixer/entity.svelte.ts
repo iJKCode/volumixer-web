@@ -84,10 +84,10 @@ function applyEventStreamResponse(entities: EntityMap, response: EventStreamResp
                     console.warn("[entity] unknown component any", component.typeUrl);
                 }
             }
-            const entity = {
+            const entity = $state({
                 id: evt.entityId,
                 components: components,
-            };
+            });
             entities.set(entity.id, entity);
             break;
         }

@@ -1,12 +1,17 @@
 <script lang="ts">
     import {base} from '$app/paths';
 
-    import {type Message} from '@bufbuild/protobuf'
+    import {type Message, isMessage} from '@bufbuild/protobuf'
     import {createTransport} from '$lib/volumixer/connect';
     import {createEntityStore} from '$lib/volumixer/entity.svelte';
+    import {createVolumeClient} from "$lib/volumixer/volume";
+
+    import {InfoComponentSchema} from 'volumixer-api/gen/ts/widget/v1/info_pb'
+    import {VolumeComponentSchema} from 'volumixer-api/gen/ts/widget/v1/volume_pb'
 
     const transport = createTransport();
     const store = createEntityStore(transport);
+    const volume = createVolumeClient(transport);
 
     function componentToString(component: Message): string {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,9 +29,9 @@
         <td>
             <span>connection: </span>
             {#if store.connected}
-                <button class="bg-green-200" on:click={() => {store.disconnect()}}>connected</button>
+                <button class="bg-green-200" onclick={() => {store.disconnect()}}>connected</button>
             {:else}
-                <button class="bg-red-200" on:click={() => {store.connect()}}>disconnected</button>
+                <button class="bg-red-200" onclick={() => {store.connect()}}>disconnected</button>
             {/if}
         </td>
     </tr>
@@ -42,7 +47,27 @@
                 {#if componentIndex === 0}
                     <td rowspan="{entity.components.size}">{entity.id}</td>
                 {/if}
-                <td>{componentToString(component)}</td>
+                {#if isMessage(component, InfoComponentSchema)}
+                    <td>name: {component.name}</td>
+                {:else if isMessage(component, VolumeComponentSchema)}
+                    <td>
+                        <span>level: {Math.round(component.level * 100.0)}</span>
+                        <button class="bg-blue-200" onclick={() => {
+                            volume.setVolumeLevel(entity.id, component.level - 0.05);
+                        }}>-
+                        </button>
+                        <button class="bg-blue-200" onclick={() => {
+                            volume.setVolumeLevel(entity.id, component.level + 0.05);
+                        }}>+
+                        </button>
+                        <span>muted: </span>
+                        <button class={component.muted ? "bg-red-200" : "bg-green-200"} onclick={() => {
+                            volume.setVolumeMute(entity.id, !component.muted);
+                        }}>{component.muted ? 'yes' : 'no'}</button>
+                    </td>
+                {:else}
+                    <td>{componentToString(component)}</td>
+                {/if}
             </tr>
         {/each}
     {/each}

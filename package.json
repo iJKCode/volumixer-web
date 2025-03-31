@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@connectrpc/connect": "^2.0.2",
 		"@connectrpc/connect-web": "^2.0.2",
-		"volumixer-api": "github:ijkcode/volumixer-api#v0.1.0"
+		"volumixer-api": "github:ijkcode/volumixer-api#v0.1.1"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
